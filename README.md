@@ -2,6 +2,24 @@
 
 Each kind of flowers are having their own distinctive features which distinguish them with other species. Those features such as colors, sepals, petals, stamens (anther and filament), and carpels (stigma, style, ovary). Images from five kinds of flowers are provided in training and test dataset, there are daisy, sunflower, dandelion, rose, and tulip. With Convolutional Neural Network, we can build an image classification model to classify an image flower to one of these flower species.
 
+If you don't want to apply the full repo, you can test the URL which I already deployed with AWS Lambda. These are the steps:
+
+1. You can try with open-source app client such as Insomnia or Postman (Postman as Chrome Extension can be downloaded [here](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop/related))
+
+2. Create request in Postman
+
+![Create Request in Postman](images/create-request-postman.png)
+
+3. Change the Request method from `GET` to `POST` and fill the URL with https://h2lpfof2pc.execute-api.us-east-1.amazonaws.com/test/predict . For the input, choose **body** -> **raw** -> **JSON (application/json)**, then fill the box with json input.
+
+```{"url": "https://www.thespruce.com/thmb/V9sZh_5_x4UwS1BRGmo3TjH7n-c=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/daisy-types-for-gardens-1316051-04-e0f4e84f081d452885752e84bc7886ed.jpg"}```
+
+![Configurethe request](images/postman-test2.png)
+
+4. Click **Send** and obtain below result.
+
+![Result postman](images/result-postman.png)
+
 Dataset source: Kaggle https://www.kaggle.com/datasets/alxmamaev/flowers-recognition
 
 ## How to Use this Repo?
@@ -64,8 +82,4 @@ The URL for testing the API is https://h2lpfof2pc.execute-api.us-east-1.amazonaw
 If it's success, it'd obtain this result below.
 
 ![Test.py script for Cloud deployment](images/testpy_lambda.png)
-
-Or you can use open-source API client such as Insomnia.
-
-![Test in Insomnia](images/insomnia_test.png)
 
