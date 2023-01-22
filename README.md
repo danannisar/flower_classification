@@ -11,7 +11,7 @@ Dataset source: Kaggle https://www.kaggle.com/datasets/alxmamaev/flowers-recogni
 4. EDA, training and tuning the hyperparameter syntax is provided in `flowers_classification.ipynb`. 
 5. Deployment steps provided below. 
 
-## Deployment in Local and Cloud (Amazon Lambda)
+## Deployment in Local
 1. Convert tensorflow model (`model_xception.h5`) to tflite model, so we could have smaller docker image size. The syntax for conversion can be seen in `tf-model.ipynb`. The result of the conversion, or the tflite model is `flowers_model.tflite`.
 2. Function for predicting has been created in `lambda_function.py`, basically it loads the tflite model, obtain the output for image classification, and lambda handler for serverless (cloud) deployment.
 3. Open Docker Desktop. Using Dockerfile that's been cloned, we can build the Docker Images `docker build -t flowers2-model .`
@@ -25,9 +25,47 @@ Dataset source: Kaggle https://www.kaggle.com/datasets/alxmamaev/flowers-recogni
    ![Success running docker](images/docker-run-success.png)
 5. Doing the test with `test.py`. There are two deployment URL in this file, make sure you use the first one for **local deployment**, remove the hash tag #.
 
+![Test.py script for local deployment](images/testpy_script.png)
 
-repository URI
- "repositoryUri": "606791026272.dkr.ecr.us-east-1.amazonaws.com/flowers-tflite-images"
+If it's success, it'd obtain this result.
 
+![Result local deployment](images/testpy.png)
 
-https://h2lpfof2pc.execute-api.us-east-1.amazonaws.com/test/predict
+## Deployment in Cloud (AWS Lambda)
+1. After building Docker image such as the steps above, we're gonna put the docker image in Amazon EC2 Container Registry (ECR). First, create the repository with AWS CLI (install it if you don't have with `pip install awscli`)
+
+Command for create AWS ECR repo:
+```aws ecr create-repository --repository-name flowers-tflite-images```
+
+2. You can see the new repo in AWS ECR console, click the repo and it will show this page, click View Push Commands (the commands to push docker images to ECR repo). Run those commands except the second one, building docker image, which we had done before. 
+
+![View Push Commands](images/aws-ecr-create-repo.png)
+
+Be careful in number 3 the command is:
+
+```docker tag <image_name_in_your_local_desktop>:latest <repo_URI>/<repo_name_in_ECR>:latest```
+
+After this finished, we will get our docker images in ECR repo.
+
+3. Go to AWS Lambda console. Select **Create Function**, give the lambda function a name and browse the pushed image. Then, create the test event.
+
+```{"url": "https://www.thespruce.com/thmb/V9sZh_5_x4UwS1BRGmo3TjH7n-c=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/daisy-types-for-gardens-1316051-04-e0f4e84f081d452885752e84bc7886ed.jpg"}```
+
+For further tutorial [video](https://www.youtube.com/watch?v=kBch5oD5BkY&list=PL3MmuxUbc_hIhxl5Ji8t4O6lPAOpHaCLR&index=94).
+
+4. To create API Gateway, we go to API Gateway service in AWS and create new API. Create `/predict` resource and add `POST` method.
+Further tutorial can be seen [here](https://www.youtube.com/watch?v=wyZ9aqQOXvs&list=PL3MmuxUbc_hIhxl5Ji8t4O6lPAOpHaCLR&index=95).
+
+5. Deploy the API and we can get Invoke URL. This is my current Invoke URL https://h2lpfof2pc.execute-api.us-east-1.amazonaws.com/test
+
+6. Test the API Gateway with `test.py`. Unlike Deployment in Local above, make sure you use the second URL for **cloud deployment**, remove the hash tag #. 
+
+The URL for testing the API is https://h2lpfof2pc.execute-api.us-east-1.amazonaws.com/test/predict (don't forget to add **/predict**).
+If it's success, it'd obtain this result below.
+
+![Test.py script for Cloud deployment](images/testpy_lambda.png)
+
+Or you can use open-source API client such as Insomnia.
+
+![Test in Insomnia](images/insomnia_test.png)
+
